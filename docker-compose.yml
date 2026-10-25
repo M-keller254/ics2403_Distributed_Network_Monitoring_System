@@ -1,0 +1,138 @@
+services:
+  collector:
+    build: .
+    command: ["python", "-m", "collector.app"]
+    environment:
+      DB_PATH: /data/metrics.sqlite3
+      STALE_AFTER_SECONDS: ${STALE_AFTER_SECONDS:-10}
+      AGENT_URLS: '{"edge-node-a":"http://edge-node-a:5001","edge-node-b":"http://edge-node-b:5002","core-node":"http://core-node:5003"}'
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-monitoradmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-this-demo-password}
+      MINIO_BUCKET: ${MINIO_BUCKET:-telemetry-archive}
+    volumes:
+      - collector_data:/data
+    ports:
+      - "127.0.0.1:5000:5000"
+    depends_on: [minio]
+    networks: [monitor-net]
+    restart: unless-stopped
+
+  edge-node-a:
+    build: .
+    command: ["python", "-m", "agent.agent"]
+    environment:
+      NODE_ID: edge-node-a
+      COLLECTOR_URL: http://collector:5000
+      AGENT_PORT: 5001
+      AGENT_DB_PATH: /data/transactions.sqlite3
+      REPORT_INTERVAL: ${REPORT_INTERVAL:-2}
+      ADAPTIVE_REPORTING: ${ADAPTIVE_REPORTING:-false}
+      QUIET_INTERVAL: ${QUIET_INTERVAL:-5}
+      BUSY_INTERVAL: ${BUSY_INTERVAL:-1}
+      HOT_CPU_THRESHOLD: ${HOT_CPU_THRESHOLD:-75}
+      HOT_MEMORY_THRESHOLD: ${HOT_MEMORY_THRESHOLD:-80}
+    depends_on: [collector]
+    expose: ["5001"]
+    volumes:
+      - edge_node_a_data:/data
+    networks: [monitor-net]
+    restart: unless-stopped
+
+  edge-node-b:
+    build: .
+    command: ["python", "-m", "agent.agent"]
+    environment:
+      NODE_ID: edge-node-b
+      COLLECTOR_URL: http://collector:5000
+      AGENT_PORT: 5002
+      AGENT_DB_PATH: /data/transactions.sqlite3
+      REPORT_INTERVAL: ${REPORT_INTERVAL:-2}
+      ADAPTIVE_REPORTING: ${ADAPTIVE_REPORTING:-false}
+      QUIET_INTERVAL: ${QUIET_INTERVAL:-5}
+      BUSY_INTERVAL: ${BUSY_INTERVAL:-1}
+      HOT_CPU_THRESHOLD: ${HOT_CPU_THRESHOLD:-75}
+      HOT_MEMORY_THRESHOLD: ${HOT_MEMORY_THRESHOLD:-80}
+    depends_on: [collector]
+    expose: ["5002"]
+    volumes:
+      - edge_node_b_data:/data
+    networks: [monitor-net]
+    restart: unless-stopped
+
+  core-node:
+    build: .
+    command: ["python", "-m", "agent.agent"]
+    environment:
+      NODE_ID: core-node
+      COLLECTOR_URL: http://collector:5000
+      AGENT_PORT: 5003
+      AGENT_DB_PATH: /data/transactions.sqlite3
+      REPORT_INTERVAL: ${REPORT_INTERVAL:-2}
+      ADAPTIVE_REPORTING: ${ADAPTIVE_REPORTING:-false}
+      QUIET_INTERVAL: ${QUIET_INTERVAL:-5}
+      BUSY_INTERVAL: ${BUSY_INTERVAL:-1}
+      HOT_CPU_THRESHOLD: ${HOT_CPU_THRESHOLD:-75}
+      HOT_MEMORY_THRESHOLD: ${HOT_MEMORY_THRESHOLD:-80}
+    depends_on: [collector]
+    expose: ["5003"]
+    volumes:
+      - core_node_data:/data
+    networks: [monitor-net]
+    restart: unless-stopped
+
+  minio:
+    # Pinned, unmodified mirror of an upstream release for coursework use.
+    image: dappros/minio:RELEASE.2025-09-07T16-13-09Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-monitoradmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-change-this-demo-password}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    networks: [monitor-net]
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=7d"]
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on: [collector]
+    networks: [monitor-net]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on: [prometheus]
+    networks: [monitor-net]
+    restart: unless-stopped
+
+networks:
+  monitor-net:
+    driver: bridge
+
+volumes:
+  collector_data:
+  prometheus_data:
+  grafana_data:
+  minio_data:
+  edge_node_a_data:
+  edge_node_b_data:
+  core_node_data:
