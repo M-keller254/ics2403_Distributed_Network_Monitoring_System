@@ -1,0 +1,4 @@
+aborted_during_failure,availability,component,fault,mttr_s
+True,0.8499,store,crash,9.0
+True,0.8614,store,crash,8.31
+True,0.8571,store,crash,8.57

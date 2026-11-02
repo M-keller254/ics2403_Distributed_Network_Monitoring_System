@@ -1,0 +1,47 @@
+x-agent: &agent
+  build: ./agent
+  networks: [monitor-net]
+
+services:
+  collector:
+    build: ./collector
+    container_name: collector-1
+    ports: ["5000:5000"]
+    networks: [monitor-net]
+  edge-node-a:
+    <<: *agent
+    container_name: edge-node-a-1
+    environment:
+      NODE_NAME: edge-node-a
+      NODE_ROLE: edge
+      COLLECTOR_URL: "http://collector:5000/report"
+      WINDOW_SIZE: "5"
+    mem_limit: 128m
+    cpus: 0.5
+    depends_on: [collector]
+  edge-node-b:
+    <<: *agent
+    container_name: edge-node-b-1
+    environment:
+      NODE_NAME: edge-node-b
+      NODE_ROLE: edge
+      COLLECTOR_URL: "http://collector:5000/report"
+      WINDOW_SIZE: "5"
+    mem_limit: 128m
+    cpus: 0.5
+    depends_on: [collector]
+  core-node:
+    <<: *agent
+    container_name: core-node-1
+    environment:
+      NODE_NAME: core-node
+      NODE_ROLE: core
+      COLLECTOR_URL: "http://collector:5000/report"
+      WINDOW_SIZE: "5"
+    mem_limit: 256m
+    cpus: 1.0
+    depends_on: [collector]
+
+networks:
+  monitor-net:
+    driver: bridge

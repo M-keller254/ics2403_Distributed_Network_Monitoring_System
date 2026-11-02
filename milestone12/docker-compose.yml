@@ -1,0 +1,156 @@
+x-agent: &agent
+  build: ./agent
+  networks: [monitor-net]
+
+services:
+  nameserver:
+    build: ./nameserver
+    container_name: nameserver
+    ports: ["9002:9000"]
+    mem_limit: 64m
+    cpus: 0.2
+    networks: [monitor-net]
+
+  collector:
+    build: ./collector
+    container_name: collector-1
+    ports: ["5000:5000"]
+    networks: [monitor-net]
+  aggregator-1:
+    build: ./aggregator
+    container_name: aggregator-1
+    environment:
+      AGG_ID: "1"
+      PORT: "6000"
+      PEERS: "http://aggregator-2:6000"
+      CLOUD_URL: http://collector:5000/report
+    ports: ["6001:6000"]
+    mem_limit: 128m
+    cpus: 0.5
+    depends_on: [collector]
+    networks: [monitor-net]
+  aggregator-2:
+    build: ./aggregator
+    container_name: aggregator-2
+    environment:
+      AGG_ID: "2"
+      PORT: "6000"
+      PEERS: "http://aggregator-1:6000"
+      CLOUD_URL: http://collector:5000/report
+    ports: ["6002:6000"]
+    mem_limit: 128m
+    cpus: 0.5
+    depends_on: [collector]
+    networks: [monitor-net]
+  edge-node-a:
+    <<: *agent
+    container_name: edge-node-a-1
+    environment:
+      NODE_NAME: edge-node-a
+      NODE_ROLE: edge
+      COLLECTOR_URL: "http://aggregator-1:6000/report,http://aggregator-2:6000/report"
+      WINDOW_SIZE: "5"
+    mem_limit: 128m
+    cpus: 0.5
+    depends_on: [aggregator-1, aggregator-2]
+  edge-node-b:
+    <<: *agent
+    container_name: edge-node-b-1
+    environment:
+      NODE_NAME: edge-node-b
+      NODE_ROLE: edge
+      COLLECTOR_URL: "http://aggregator-1:6000/report,http://aggregator-2:6000/report"
+      WINDOW_SIZE: "5"
+    mem_limit: 128m
+    cpus: 0.5
+    depends_on: [aggregator-1, aggregator-2]
+  core-node:
+    <<: *agent
+    container_name: core-node-1
+    environment:
+      NODE_NAME: core-node
+      NODE_ROLE: core
+      COLLECTOR_URL: "http://collector:5000/report"
+      WINDOW_SIZE: "5"
+    mem_limit: 256m
+    cpus: 1.0
+    depends_on: [collector]
+
+  store-a:
+    build: ./store
+    container_name: store-a
+    environment:
+      STORE_ID: "A"
+      PORT: "7001"
+      NAME_SERVER: "http://nameserver:9000"
+      OWN_URL: "http://store-a:7001"
+    ports: ["7001:7001"]
+    depends_on: [nameserver]
+    networks: [monitor-net]
+
+  store-b:
+    build: ./store
+    container_name: store-b
+    environment:
+      STORE_ID: "B"
+      PORT: "7002"
+      NAME_SERVER: "http://nameserver:9000"
+      OWN_URL: "http://store-b:7002"
+    ports: ["7002:7002"]
+    depends_on: [nameserver]
+    networks: [monitor-net]
+
+  txn-coordinator:
+    build: ./txn-coordinator
+    container_name: txn-coordinator
+    environment:
+      PARTICIPANTS: "http://store-a:7001,http://store-b:7002"
+      PORT: "7000"
+    ports: ["7000:7000"]
+    depends_on: [store-a, store-b]
+    networks: [monitor-net]
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    environment:
+      REPLICAS: "http://store-a:7001,http://store-b:7002"
+      NAME_SERVER: "http://nameserver:9000"
+      LOGICAL_NAMES: "store-a,store-b"
+    ports: ["8000:8000"]
+    depends_on: [store-a, store-b, nameserver]
+    mem_limit: 96m
+    cpus: 0.3
+    networks: [monitor-net]
+
+  minio:
+    image: dappros/minio:RELEASE.2025-09-07T16-13-09Z
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports: ["9000:9000", "9001:9001"]
+    mem_limit: 256m
+    cpus: 0.5
+    networks: [monitor-net]
+
+  archiver:
+    build: ./archiver
+    container_name: archiver
+    environment:
+      COLLECTOR_URL: "http://collector:5000/status"
+      SNAPSHOT_INTERVAL: "10"
+      MINIO_ENDPOINT: "minio:9000"
+      MINIO_ACCESS_KEY: "minioadmin"
+      MINIO_SECRET_KEY: "minioadmin"
+      BUCKET: "monitoring-data"
+    ports: ["9500:9500"]
+    depends_on: [minio, collector]
+    mem_limit: 128m
+    cpus: 0.3
+    networks: [monitor-net]
+
+networks:
+  monitor-net:
+    driver: bridge
