@@ -1,0 +1,30 @@
+{
+  "title": "Distributed Network Monitoring",
+  "uid": "distributed-monitoring",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU by node",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [{"expr": "monitoring_cpu_percent", "legendFormat": "{{node_id}}", "refId": "A"}]
+    },
+    {
+      "id": 2,
+      "title": "Memory by node",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [{"expr": "monitoring_memory_percent", "legendFormat": "{{node_id}}", "refId": "A"}]
+    },
+    {
+      "id": 3,
+      "title": "Accepted reports",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8},
+      "targets": [{"expr": "rate(monitoring_ingest_total[1m])", "legendFormat": "{{node_id}}", "refId": "A"}]
+    }
+  ]
+}
