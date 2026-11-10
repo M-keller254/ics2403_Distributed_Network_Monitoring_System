@@ -14,8 +14,8 @@ same two operations (transfer, reconcile):
 ## Run
 ```powershell
 docker compose up --build
-python experiments/deadlock_test.py
-```
+python .\experiments/deadlock_test.py
+docker compose restart collector
 Run order matters: the script calls `/demo/safe` and `/demo/detect`
 first (both return normally), and `/demo/unsafe` last, since that
 call deliberately and permanently deadlocks the collector process.

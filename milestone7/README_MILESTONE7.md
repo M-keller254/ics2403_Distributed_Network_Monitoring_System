@@ -55,11 +55,11 @@ overclaiming.
 ## How to run
 ```powershell
 docker compose up --build
-python experiments/fault_test.py --component aggregator --fault crash --trials 3
-python experiments/fault_test.py --component store      --fault crash --trials 3
-# compare fault kinds:
-python experiments/fault_test.py --component store --fault omission --trials 3
-```
+Set-Location .\milestone7
+Test-Path .\experiments\fault_test.py
+python .\experiments\fault_test.py --component store --fault crash --trials 3
+python .\experiments\fault_test.py --component store --fault omission --trials 3
+python .\experiments\fault_test.py --component aggregator --fault crash --trials 3
 
 ## Deliverables
 - [x] Fault-injection framework (`fault_test.py`; crash, omission, communication)

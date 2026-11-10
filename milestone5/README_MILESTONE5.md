@@ -8,8 +8,9 @@ any participant votes NO or is unreachable.
 
 ## Run
 ```powershell
+Set-Location .\milestone5
 docker compose up --build
-python experiments/txn_test.py --n 20
+python .\experiments/txn_test.py --n 20
 ```
 The script runs normal writes, then puts store-b into `fail_mode` to
 force aborts, then checks store-a and store-b hold IDENTICAL

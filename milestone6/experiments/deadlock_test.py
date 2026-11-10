@@ -11,7 +11,7 @@ Usage: python experiments/deadlock_test.py
 import time
 import requests
 
-COLLECTOR = "http://localhost:5000"
+COLLECTOR = "http://localhost:5001"
 
 
 def call(path, client_timeout):
