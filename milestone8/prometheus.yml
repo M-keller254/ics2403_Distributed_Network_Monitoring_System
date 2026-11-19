@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: collector
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["collector:5000"]
+  - job_name: aggregators
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["aggregator-1:6000", "aggregator-2:6000"]
+  - job_name: milestone7-fault-results
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["fault-results:8000"]

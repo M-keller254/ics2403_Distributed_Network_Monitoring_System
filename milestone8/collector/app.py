@@ -7,7 +7,7 @@ Also records server-side receive time so latency can be cross-checked
 against the client-side latency the agent measures.
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from deadlock_demo import (
     unsafe_transfer, unsafe_reconcile, safe_transfer, safe_reconcile,
     detect_transfer, detect_reconcile,
@@ -25,6 +25,21 @@ _state = {
     "total_records_failed": 0,
     "forwarded_counts": {},   # aggregator id -> summaries received from it
 }
+
+
+def _prom_label(value):
+    """Escape a value for a Prometheus label."""
+    return str(value).replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+
+def _prom_number(value):
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number != number or number in (float("inf"), float("-inf")):
+        return None
+    return number
 
 
 @app.route("/report", methods=["POST"])
@@ -133,6 +148,43 @@ def demo_detect():
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "healthy"}), 200
+
+
+@app.route("/metrics", methods=["GET"])
+def metrics():
+    """Expose current collector state in Prometheus text format."""
+    with _lock:
+        latest = dict(_state["latest"])
+        received = _state["total_records_received"]
+        failed = _state["total_records_failed"]
+        forwarded = dict(_state["forwarded_counts"])
+
+    lines = [
+        "# HELP dnms_collector_reports_received_total Valid reports received by the collector.",
+        "# TYPE dnms_collector_reports_received_total counter",
+        f"dnms_collector_reports_received_total {received}",
+        "# HELP dnms_collector_reports_failed_total Invalid reports rejected by the collector.",
+        "# TYPE dnms_collector_reports_failed_total counter",
+        f"dnms_collector_reports_failed_total {failed}",
+        "# HELP dnms_collector_latest_node_cpu_percent Latest CPU percentage reported for each node.",
+        "# TYPE dnms_collector_latest_node_cpu_percent gauge",
+        "# HELP dnms_collector_latest_node_memory_percent Latest memory percentage reported for each node.",
+        "# TYPE dnms_collector_latest_node_memory_percent gauge",
+    ]
+    for node, record in latest.items():
+        labels = f'node="{_prom_label(node)}",role="{_prom_label(record.get("role", "unknown"))}"'
+        for metric, key in (("dnms_collector_latest_node_cpu_percent", "cpu"),
+                            ("dnms_collector_latest_node_memory_percent", "mem")):
+            value = _prom_number(record.get(key))
+            if value is not None:
+                lines.append(f"{metric}{{{labels}}} {value}")
+    lines += [
+        "# HELP dnms_collector_forwarded_reports_total Reports received from each aggregator.",
+        "# TYPE dnms_collector_forwarded_reports_total counter",
+    ]
+    for aggregator, count in forwarded.items():
+        lines.append(f'dnms_collector_forwarded_reports_total{{aggregator="{_prom_label(aggregator)}"}} {count}')
+    return Response("\n".join(lines) + "\n", mimetype="text/plain; version=0.0.4; charset=utf-8")
 
 
 if __name__ == "__main__":

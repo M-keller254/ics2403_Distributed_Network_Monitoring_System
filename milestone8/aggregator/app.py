@@ -25,7 +25,7 @@ import time
 import threading
 import statistics
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 
 AGG_ID = int(os.environ.get("AGG_ID", "1"))
 PORT = int(os.environ.get("PORT", "6000"))
@@ -103,6 +103,40 @@ def leader():
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "healthy", "id": AGG_ID}), 200
+
+
+@app.route("/metrics", methods=["GET"])
+def metrics():
+    """Expose leadership and message counters in Prometheus text format."""
+    leader_id, alive, term = evaluate()
+    with lock:
+        counters = {key: S[key] for key in (
+            "edge_received", "hb_sent", "hb_failed", "hb_received",
+            "forwarded", "forward_failed",
+        )}
+    is_leader = int(leader_id == AGG_ID)
+    lines = [
+        "# HELP dnms_aggregator_is_leader Whether this aggregator is the elected leader (0 during startup grace).",
+        "# TYPE dnms_aggregator_is_leader gauge",
+        f"dnms_aggregator_is_leader{{aggregator=\"{AGG_ID}\"}} {is_leader}",
+        "# HELP dnms_aggregator_leader_term Current local leadership term.",
+        "# TYPE dnms_aggregator_leader_term gauge",
+        f"dnms_aggregator_leader_term{{aggregator=\"{AGG_ID}\"}} {term}",
+        "# HELP dnms_aggregator_alive_peers Number of aggregators currently considered alive.",
+        "# TYPE dnms_aggregator_alive_peers gauge",
+        f"dnms_aggregator_alive_peers{{aggregator=\"{AGG_ID}\"}} {len(alive)}",
+    ]
+    metric_names = {
+        "edge_received": "dnms_aggregator_edge_reports_received_total",
+        "hb_sent": "dnms_aggregator_heartbeats_sent_total",
+        "hb_failed": "dnms_aggregator_heartbeats_failed_total",
+        "hb_received": "dnms_aggregator_heartbeats_received_total",
+        "forwarded": "dnms_aggregator_summaries_forwarded_total",
+        "forward_failed": "dnms_aggregator_summaries_failed_total",
+    }
+    for key, name in metric_names.items():
+        lines.extend((f"# TYPE {name} counter", f'{name}{{aggregator="{AGG_ID}"}} {counters[key]}'))
+    return Response("\n".join(lines) + "\n", mimetype="text/plain; version=0.0.4; charset=utf-8")
 
 
 def heartbeat_loop():

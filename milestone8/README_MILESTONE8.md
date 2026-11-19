@@ -50,9 +50,18 @@ The edge agents send reports to both aggregators. The elected aggregator forward
 
 These are measurements from particular local runs, not service-level guarantees. Keep each result with its matching terminal output and CSV. Do not combine numbers from different runs.
 
-## Start the Milestone 8 integrated stack (optional)
+## Live Grafana view for Milestones 7 and 8
 
-Milestone 8 is analysis-only, so starting Docker is optional. Use this if you want to demonstrate the running system. Run these commands in PowerShell:
+Milestone 8 remains an analysis milestone; these additions provide a teaching/demo view without changing its model comparison. Prometheus scrapes the collector and both aggregators. A small read-only exporter loads the already-saved Milestone 7 fault CSVs from `../milestone7/experiments/results`. Grafana provisions two separate dashboards automatically.
+
+- **Milestone 7 | Fault Tolerance and Leader Failover:** live node CPU/memory, aggregator leader and forwarding/heartbeat metrics, collector report rate, and saved fault-test summaries (MTTR, availability, trial counts).
+- **Milestone 8 | Distributed System Models:** architecture diagram, five-model comparison, trade-offs, and an explanation of the earlier milestone evidence used to support the integrated-model conclusion.
+
+Milestone 7 fault charts are calculated from the saved CSV rows; they do not rerun experiments. Keep each CSV with its matching terminal output when presenting results. The two dashboards have separate titles and can be opened from **Dashboards → Distributed Network Monitoring**.
+
+### Start it in PowerShell
+
+First stop any other milestone stack that is using the same fixed container names. Go to that milestone's folder and run `docker compose down` (do not add `-v`). Then run:
 
 ```powershell
 Set-Location "C:\Users\USER\Desktop\-ics2403-distributed-network-monitoring\milestone8"
@@ -60,21 +69,25 @@ docker compose up --build -d
 docker compose ps
 ```
 
-`docker compose ps` should list the Milestone 8 services as running. If an old service is stopped or restarting, inspect it before presenting the stack:
+Open Grafana at [http://localhost:3001](http://localhost:3001). Sign in with username `admin` and password `change-this-password`. Choose **Dashboards → Distributed Network Monitoring**, then open either **Milestone 7 | Fault Tolerance and Leader Failover** or **Milestone 8 | Distributed System Models**. Prometheus is available at [http://localhost:9091](http://localhost:9091); open **Status → Targets** to see whether each scrape is `UP`.
+
+The results exporter reads the sibling Milestone 7 results directory when the M8 stack starts. If you rerun a Milestone 7 experiment, its CSV values refresh in Prometheus on the next scrape; the historical summary reflects the CSV files currently in that folder. It does not create a separate archive per run.
+
+If a service is stopped or restarting, inspect its logs:
 
 ```powershell
-docker compose logs --tail 50 collector aggregator-1 aggregator-2 edge-node-a edge-node-b core-node
+docker compose logs --tail 50 collector aggregator-1 aggregator-2 prometheus fault-results grafana
 ```
 
-## View live reports and aggregator leadership
+### Other live status pages
 
-This Compose file does not include Grafana or a graphical topology dashboard. These HTTP links show live JSON status instead. Open them in a browser while the stack is running:
+Open the JSON status endpoints in a browser while the stack is running:
 
 - Collector status and most recent reports: [http://localhost:5000/status](http://localhost:5000/status)
 - Aggregator 1 leadership and counters: [http://localhost:6001/leader](http://localhost:6001/leader)
 - Aggregator 2 leadership and counters: [http://localhost:6002/leader](http://localhost:6002/leader)
 
-The port mappings are in `docker-compose.yml`: collector `5000:5000`, aggregator 1 `6001:6000`, and aggregator 2 `6002:6000`. In a mapping such as `6001:6000`, use the **left-hand** port (`6001`) in your computer's browser. The route path is defined in the service's Python file: `/status` in `collector/app.py` and `/leader` in `aggregator/app.py`.
+Metrics can also be viewed directly at [collector metrics](http://localhost:5000/metrics), [aggregator 1 metrics](http://localhost:6001/metrics), and [aggregator 2 metrics](http://localhost:6002/metrics). The port mappings are in `docker-compose.yml`; use the left-hand port on your computer.
 
 To watch reports move through the services, open a second PowerShell terminal and run:
 

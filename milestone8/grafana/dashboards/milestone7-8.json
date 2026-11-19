@@ -1,0 +1,96 @@
+{
+  "uid": "dnms-m7-m8",
+  "title": "Milestone 7 | Fault Tolerance and Leader Failover",
+  "tags": ["milestone7", "theme2"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "timeseries", "title": "Latest CPU by node (%)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "dnms_collector_latest_node_cpu_percent", "legendFormat": "{{node}} ({{role}})", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0 }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 2, "type": "timeseries", "title": "Latest memory by node (%)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "dnms_collector_latest_node_memory_percent", "legendFormat": "{{node}} ({{role}})", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0 }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 3, "type": "stat", "title": "Current aggregator leader(s)",
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "dnms_aggregator_is_leader", "legendFormat": "Aggregator {{aggregator}} (1 = leader)", "refId": "A" }],
+      "fieldConfig": { "defaults": { "min": 0, "max": 1, "mappings": [{ "type": "value", "options": { "0": { "text": "STANDBY (or startup grace)", "color": "blue-gray" }, "1": { "text": "LEADER", "color": "green" } } }] }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "orientation": "horizontal", "textMode": "value_and_name", "colorMode": "background", "graphMode": "none", "justifyMode": "auto" }
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Aggregator forwarding and heartbeat counters",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(dnms_aggregator_summaries_forwarded_total[1m])", "legendFormat": "Agg {{aggregator}} summaries/s", "refId": "A" },
+        { "expr": "rate(dnms_aggregator_heartbeats_failed_total[1m])", "legendFormat": "Agg {{aggregator}} heartbeat failures/s", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 5, "type": "bargauge", "title": "Milestone 7 mean recovery time (seconds)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "dnms_fault_mean_mttr_seconds", "legendFormat": "{{component}} / {{fault}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "s", "min": 0 }, "overrides": [] },
+      "options": { "displayMode": "basic", "orientation": "horizontal", "showUnfilled": true, "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } }
+    },
+    {
+      "id": 6, "type": "bargauge", "title": "Milestone 7 mean availability",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "dnms_fault_mean_availability_ratio", "legendFormat": "{{component}} / {{fault}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 }, "overrides": [] },
+      "options": { "displayMode": "basic", "orientation": "horizontal", "showUnfilled": true, "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } }
+    },
+    {
+      "id": 7, "type": "stat", "title": "Saved trials by fault scenario",
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "dnms_fault_trials_total", "legendFormat": "{{component}} / {{fault}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0 }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "orientation": "horizontal", "textMode": "value_and_name", "colorMode": "value", "graphMode": "none", "justifyMode": "auto" }
+    },
+    {
+      "id": 8, "type": "stat", "title": "Trials with recorded recovery time",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "dnms_fault_recovered_trials_total", "legendFormat": "{{component}} / {{fault}}", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0 }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "orientation": "horizontal", "textMode": "value_and_name", "colorMode": "value", "graphMode": "none", "justifyMode": "auto" }
+    },
+    {
+      "id": 9, "type": "timeseries", "title": "Collector reports per second",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 30 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(dnms_collector_reports_received_total[1m])", "legendFormat": "Reports received/s", "refId": "A" },
+        { "expr": "rate(dnms_collector_reports_failed_total[1m])", "legendFormat": "Invalid reports/s", "refId": "B" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 10, "type": "text", "title": "Milestone 7 evidence guide",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 38 },
+      "options": { "mode": "markdown", "content": "**Milestone 7 focus:** measure recovery from service failures and observe aggregator leadership. The fault panels summarize the saved CSV files: mean recovery time, mean availability, number of trials, and trials with a recorded recovery time. These are historical experiment results; CPU, memory, leader state, heartbeat, forwarding, and collector panels are live. A zero leader gauge means standby or startup grace, not necessarily a failure. Compare the saved CSV with the terminal output from the same run when presenting results." }
+    }
+  ]
+}

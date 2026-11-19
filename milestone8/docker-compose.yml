@@ -92,6 +92,50 @@ services:
     depends_on: [store-a, store-b]
     networks: [monitor-net]
 
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - collector
+      - aggregator-1
+      - aggregator-2
+    networks:
+      - monitor-net
+
+  fault-results:
+    image: python:3.12-alpine
+    command: ["python", "/app/fault_results_exporter.py"]
+    volumes:
+      - ./experiments/fault_results_exporter.py:/app/fault_results_exporter.py:ro
+      - ../milestone7/experiments/results:/results:ro
+    networks:
+      - monitor-net
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: change-this-password
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - monitor-net
+
 networks:
   monitor-net:
     driver: bridge
+
+volumes:
+  grafana_data:

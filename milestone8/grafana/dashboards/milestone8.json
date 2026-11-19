@@ -1,0 +1,43 @@
+{
+  "uid": "dnms-m8",
+  "title": "Milestone 8 | Distributed System Models",
+  "tags": ["milestone8", "theme2", "architecture"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "",
+  "time": { "from": "now-15m", "to": "now" },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "Theme 2 system architecture",
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "mode": "markdown",
+        "content": "```text\nedge-node-a ─┬─> aggregator-1 ─┐\n             └─> aggregator-2 ─┴─> elected aggregator ─> collector\nedge-node-b ─┬─> aggregator-1\n             └─> aggregator-2\ncore-node ───────────────────────────────────────────────────────> collector\n\ntxn-coordinator ──> store-a and store-b\n```\n\nThe edge nodes send reports to both aggregators. The elected aggregator forwards a regional summary to the collector; the core node reports directly. The coordinator and two stores handle control-state transactions separately from periodic monitoring samples."
+      }
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "Compare the five distributed-system models",
+      "gridPos": { "h": 13, "w": 24, "x": 0, "y": 9 },
+      "options": {
+        "mode": "markdown",
+        "content": "| Model | What it means | Fit to Theme 2 |\n|---|---|---|\n| **Host-based** | Many clients rely on one central service. | Milestone 2 flat baseline: nodes report directly to one collector. Simple, but concentrates load and risk. |\n| **Processor pool** | Equivalent workers share jobs. | Poor fit: edge, aggregator, collector, coordinator, and stores have distinct roles. |\n| **Workstation** | Independent nodes do local work and cooperate occasionally. | Partly fits edge nodes, which summarize local measurements before reporting. |\n| **Server-based** | Dedicated services provide defined functions. | Fits collector, aggregator, coordinator, and store roles. |\n| **Integrated** | A deliberate combination of models. | **Best overall fit:** local edge work plus dedicated network services and cooperating tiers. |\n\n**Trade-offs:** the integrated design adds an aggregator hop and periodic flush delay, uses more containers and messages, and reduces direct load at the collector. Redundancy mechanisms add complexity; configured redundancy alone does not prove failover or durable recovery. The coordinator can also become a scaling limit as participants grow."
+      }
+    },
+    {
+      "id": 3,
+      "type": "text",
+      "title": "Evidence reused from earlier milestones",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 22 },
+      "options": {
+        "mode": "markdown",
+        "content": "Milestone 8 is an architecture analysis; it does not run a new experiment. It reuses measurements from Milestones 2, 5, and 7.\n\n- **Milestone 5:** use the saved transaction CSV and matching terminal output for committed/aborted writes and replica consistency. The captured run had 19 committed writes and matching 19-key store contents.\n- **Milestone 7:** use the fault-recovery dashboard for saved crash/omission trials, mean MTTR, and availability. These are run-specific results, not guarantees.\n- **Model conclusion:** integrated model fits best because the system combines local edge work with dedicated service tiers.\n\n[Open the Milestone 7 live and fault-results dashboard](d/dnms-m7-m8)."
+      }
+    }
+  ]
+}
