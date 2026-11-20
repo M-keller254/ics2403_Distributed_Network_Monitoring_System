@@ -1,4 +1,4 @@
 availability,component,fault,mttr_s
-0.9446,aggregator,crash,3.32
-0.957,aggregator,crash,2.58
-0.9487,aggregator,crash,3.08
+0.9351,aggregator,crash,3.89
+0.9615,aggregator,crash,2.31
+0.9543,aggregator,crash,2.74

@@ -54,6 +54,8 @@ overclaiming.
 
 ## How to run
 ```powershell
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& C:\Users\USER\Desktop\-ics2403-distributed-network-monitoring\venv\Scripts\Activate.ps1)
+Set-Location "C:\Users\USER\Desktop\-ics2403-distributed-network-monitoring\milestone7"
 docker compose up --build
 Set-Location .\milestone7
 Test-Path .\experiments\fault_test.py

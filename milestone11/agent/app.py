@@ -21,6 +21,12 @@ import time
 import statistics
 import psutil
 import requests
+import json
+
+try:
+    from kafka import KafkaProducer
+except ImportError:  # Allow HTTP-only mode outside the Kafka-enabled Compose stack.
+    KafkaProducer = None
 
 NODE_NAME = os.environ.get("NODE_NAME", "unknown-node")
 NODE_ROLE = os.environ.get("NODE_ROLE", "unknown")
@@ -28,6 +34,9 @@ COLLECTOR_URL = os.environ.get("COLLECTOR_URL", "http://collector:5000/report")
 TARGETS = [u.strip() for u in COLLECTOR_URL.split(",") if u.strip()]
 REPORT_INTERVAL = float(os.environ.get("REPORT_INTERVAL", "1"))
 WINDOW_SIZE = int(os.environ.get("WINDOW_SIZE", "5"))
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "").strip()
+KAFKA_TOPIC = os.environ.get("KAFKA_TOPIC", "monitoring.reports")
+_producer = None
 
 CGROUP_MEM_CURRENT = "/sys/fs/cgroup/memory.current"
 CGROUP_MEM_MAX = "/sys/fs/cgroup/memory.max"
@@ -65,6 +74,9 @@ def send_report(summary, attempt_send_time):
         "mem_min": summary["mem_min"], "mem_max": summary["mem_max"],
         "window_size": summary["window_size"],
     }
+    if KAFKA_BOOTSTRAP_SERVERS:
+        return publish_kafka(payload)
+
     any_ok = False
     for url in TARGETS:
         t_request = time.time()
@@ -79,6 +91,34 @@ def send_report(summary, attempt_send_time):
         except requests.exceptions.RequestException as e:
             print(f"[agent:{NODE_NAME}] FAILED to reach {url}: {e}", flush=True)
     return any_ok
+
+
+def publish_kafka(payload):
+    """Publish one locally aggregated report as a Kafka event."""
+    global _producer
+    if KafkaProducer is None:
+        print("[agent] Kafka is configured but kafka-python is unavailable", flush=True)
+        return False
+    try:
+        if _producer is None:
+            _producer = KafkaProducer(
+                bootstrap_servers=[s.strip() for s in KAFKA_BOOTSTRAP_SERVERS.split(",") if s.strip()],
+                key_serializer=lambda key: key.encode("utf-8"),
+                value_serializer=lambda value: json.dumps(value).encode("utf-8"),
+                acks="all",
+                retries=5,
+                max_block_ms=10000,
+            )
+        event = {**payload, "event_id": f"{NODE_NAME}-{time.time_ns()}",
+                 "produced_at": time.time()}
+        record = _producer.send(KAFKA_TOPIC, key=NODE_NAME, value=event).get(timeout=15)
+        print(f"[agent:{NODE_NAME}] published event={event['event_id']} "
+              f"topic={record.topic} partition={record.partition} offset={record.offset}",
+              flush=True)
+        return True
+    except Exception as exc:
+        print(f"[agent:{NODE_NAME}] Kafka publish failed: {exc}", flush=True)
+        return False
 
 
 def collect_window():
@@ -104,9 +144,14 @@ def collect_window():
 
 
 def main():
+    destination = (
+        f"Kafka {KAFKA_BOOTSTRAP_SERVERS}/{KAFKA_TOPIC}"
+        if KAFKA_BOOTSTRAP_SERVERS
+        else COLLECTOR_URL
+    )
     print(
         f"[agent:{NODE_NAME}] starting, role={NODE_ROLE}, "
-        f"window_size={WINDOW_SIZE}, reporting to {COLLECTOR_URL}",
+        f"window_size={WINDOW_SIZE}, reporting to {destination}",
         flush=True,
     )
     while True:

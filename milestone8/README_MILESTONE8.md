@@ -64,6 +64,7 @@ Milestone 7 fault charts are calculated from the saved CSV rows; they do not rer
 First stop any other milestone stack that is using the same fixed container names. Go to that milestone's folder and run `docker compose down` (do not add `-v`). Then run:
 
 ```powershell
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; (& C:\Users\USER\Desktop\-ics2403-distributed-network-monitoring\venv\Scripts\Activate.ps1)
 Set-Location "C:\Users\USER\Desktop\-ics2403-distributed-network-monitoring\milestone8"
 docker compose up --build -d
 docker compose ps

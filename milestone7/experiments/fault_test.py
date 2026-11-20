@@ -64,13 +64,17 @@ def restore(container, fault_kind):
         docker("unpause", container)
 
 
-def leader_of_aggregators():
-    for i in AGG:
-        try:
-            if requests.get(AGG[i] + "/leader", timeout=1).json().get("is_leader"):
-                return i
-        except requests.exceptions.RequestException:
-            continue
+def leader_of_aggregators(wait_s=15):
+    deadline = time.time() + wait_s
+    while time.time() < deadline:
+        for i in AGG:
+            try:
+                response = requests.get(AGG[i] + "/leader", timeout=1)
+                if response.json().get("is_leader"):
+                    return i
+            except requests.exceptions.RequestException:
+                pass
+        time.sleep(0.5)
     return None
 
 
@@ -104,16 +108,24 @@ def store_trial(fault_kind, window_s=60):
     t_fail = time.time()
     inject(STORE_B_CONTAINER, fault_kind)
 
-    # confirm the coordinator is now aborting (expected during the outage)
-    time.sleep(2)
-    r = requests.post(f"{COORD}/write", json={"key": "probe", "value": 1}, timeout=5)
-    aborting_during_failure = (r.json()["decision"] == "ABORT")
+    # Confirm that the coordinator aborts while one participant is unavailable.
+    # Each participant call can take 2s, and the coordinator may also send an
+    # abort to the participant that voted YES, so allow more than 5s end-to-end.
+    try:
+        time.sleep(2)
+        r = requests.post(
+            f"{COORD}/write", json={"key": "probe", "value": 1}, timeout=10
+        )
+        aborting_during_failure = (r.json().get("decision") == "ABORT")
+    finally:
+        # Always recover the participant, including when the coordinator call
+        # times out or returns an unexpected response.
+        restore(STORE_B_CONTAINER, fault_kind)
 
-    restore(STORE_B_CONTAINER, fault_kind)
     t_recovered = None
     while time.time() - t_fail < window_s and t_recovered is None:
         try:
-            r = requests.post(f"{COORD}/write", json={"key": "probe", "value": 2}, timeout=5)
+            r = requests.post(f"{COORD}/write", json={"key": "probe", "value": 2}, timeout=10)
             if r.json()["decision"] == "COMMIT":
                 t_recovered = time.time() - t_fail
         except requests.exceptions.RequestException:

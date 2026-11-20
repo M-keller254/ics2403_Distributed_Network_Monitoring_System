@@ -120,7 +120,8 @@ def heartbeat_loop():
 
 def flush_loop():
     while True:
-        time.sleep(FLUSH_INTERVAL)
+        time.sleep(FLUSH_INTERVAL)        
+        lid, _, term = evaluate()
         lid, alive, term = evaluate()
         if lid != AGG_ID:
             continue                      # standby: hold data, do not forward

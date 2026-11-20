@@ -1,0 +1,7 @@
+recorded_at_utc,trial,scenario,status_code,served_by,replicas_tried,gateway_overhead_s,failover_succeeded
+2026-11-20T06:18:25.431806+00:00,1,both_stores_healthy,200,http://store-a:7001,1,0.0109,
+2026-11-20T06:18:30.761879+00:00,1,store_a_stopped,200,http://store-b:7002,2,4.0131,True
+2026-11-20T06:18:32.714327+00:00,2,both_stores_healthy,200,http://store-a:7001,1,0.0041,
+2026-11-20T06:18:37.318621+00:00,2,store_a_stopped,200,http://store-b:7002,2,3.324,True
+2026-11-20T06:18:39.268282+00:00,3,both_stores_healthy,200,http://store-a:7001,1,0.0051,
+2026-11-20T06:18:43.764095+00:00,3,store_a_stopped,200,http://store-b:7002,2,3.424,True

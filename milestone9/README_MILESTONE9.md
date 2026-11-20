@@ -42,6 +42,17 @@ docker stop store-a
 Invoke-RestMethod http://localhost:8000/read/t     # same URL, different backend
 ```
 
+## Power BI evidence
+
+`experiments/gateway_transparency_test.py` measures gateway reads with both
+replicas healthy and while `store-a` is stopped. It restores `store-a` after
+each injected failure and saves the observed result rows to
+`experiments/results/powerbi_gateway_transparency.csv`. Import that CSV into
+Power BI Desktop to compare the serving replica, number of replicas tried,
+gateway overhead, and failover success. See `powerbi/README_POWERBI.md` for the
+report setup. The Power BI file is a report over saved experiment evidence, not
+a live monitor.
+
 ## Deliverables
 - [x] Transparent service mechanism (`gateway/app.py`)
 - [x] Replication/failure experiment (store-a down, confirmed automatic failover)

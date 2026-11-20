@@ -3,12 +3,23 @@ x-agent: &agent
   networks: [monitor-net]
 
 services:
+  zookeeper:
+    image: zookeeper:3.9.7
+    container_name: zookeeper
+    ports: ["2181:2181"]
+    networks: [monitor-net]
+
   nameserver:
     build: ./nameserver
     container_name: nameserver
+    environment:
+      ZOOKEEPER_HOSTS: "zookeeper:2181"
+      STALE_AFTER: "10"
     ports: ["9000:9000"]
     mem_limit: 64m
     cpus: 0.2
+    depends_on: [zookeeper]
+    restart: unless-stopped
     networks: [monitor-net]
 
   collector:

@@ -24,8 +24,14 @@ import os
 import time
 import threading
 import statistics
+import json
 import requests
 from flask import Flask, request, jsonify
+
+try:
+    from kafka import KafkaConsumer
+except ImportError:  # Keep HTTP-only operation available outside the Kafka stack.
+    KafkaConsumer = None
 
 AGG_ID = int(os.environ.get("AGG_ID", "1"))
 PORT = int(os.environ.get("PORT", "6000"))
@@ -35,6 +41,8 @@ HB_INTERVAL = float(os.environ.get("HB_INTERVAL", "1"))
 HB_TIMEOUT = float(os.environ.get("HB_TIMEOUT", "3"))
 FLUSH_INTERVAL = float(os.environ.get("FLUSH_INTERVAL", "5"))
 STALE_AFTER = 15.0          # ignore edge readings older than this
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "").strip()
+KAFKA_TOPIC = os.environ.get("KAFKA_TOPIC", "monitoring.reports")
 
 app = Flask(__name__)
 lock = threading.Lock()
@@ -45,6 +53,7 @@ S = {
     "term": 0, "last_leader": None,
     "edge_received": 0, "hb_sent": 0, "hb_failed": 0, "hb_received": 0,
     "forwarded": 0, "forward_failed": 0,
+    "http_received": 0, "kafka_received": 0, "kafka_errors": 0,
 }
 
 
@@ -77,7 +86,70 @@ def report():
     with lock:
         S["latest"][d["node"]] = d
         S["edge_received"] += 1
+        S["http_received"] += 1
     return jsonify({"status": "ok", "aggregator": AGG_ID}), 200
+
+
+def accept_kafka_report(event, produced_at):
+    """Add a Kafka event to this aggregator's local view.
+
+    Each aggregator uses its own consumer group. Both therefore see the full
+    stream and the existing leader election can select either complete view.
+    """
+    if not isinstance(event, dict) or "node" not in event:
+        with lock:
+            S["kafka_errors"] += 1
+        return
+    report_data = dict(event)
+    # Preserve event time so replay after a consumer restart does not make an
+    # old measurement look fresh just because it was read again now.
+    report_data["received_ts"] = float(produced_at or event.get("produced_at") or time.time())
+    with lock:
+        S["latest"][report_data["node"]] = report_data
+        S["edge_received"] += 1
+        S["kafka_received"] += 1
+
+
+def kafka_consumer_loop():
+    if not KAFKA_BOOTSTRAP_SERVERS:
+        log("Kafka consumer disabled (KAFKA_BOOTSTRAP_SERVERS is empty)")
+        return
+    if KafkaConsumer is None:
+        log("Kafka is configured but kafka-python is unavailable")
+        return
+
+    servers = [s.strip() for s in KAFKA_BOOTSTRAP_SERVERS.split(",") if s.strip()]
+    while True:
+        consumer = None
+        try:
+            consumer = KafkaConsumer(
+                KAFKA_TOPIC,
+                bootstrap_servers=servers,
+                group_id=f"monitoring-aggregator-{AGG_ID}",
+                # Keep offsets uncommitted so a restarted aggregator replays
+                # the retained stream and reconstructs its recent node view.
+                enable_auto_commit=False,
+                auto_offset_reset="earliest",
+                value_deserializer=lambda raw: json.loads(raw.decode("utf-8")),
+            )
+            log(f"Kafka consumer ready topic={KAFKA_TOPIC} "
+                f"group=monitoring-aggregator-{AGG_ID}")
+            for message in consumer:
+                event = message.value
+                produced_at = (event.get("produced_at", message.timestamp / 1000.0)
+                               if isinstance(event, dict) else None)
+                accept_kafka_report(event, produced_at)
+        except Exception as exc:
+            with lock:
+                S["kafka_errors"] += 1
+            log(f"Kafka consumer reconnecting after error: {exc}")
+            time.sleep(3)
+        finally:
+            if consumer is not None:
+                try:
+                    consumer.close()
+                except Exception:
+                    pass
 
 
 @app.route("/heartbeat", methods=["POST"])
@@ -94,7 +166,8 @@ def heartbeat():
 def leader():
     lid, alive, term = evaluate()
     with lock:
-        counters = {k: S[k] for k in ("edge_received", "hb_sent", "hb_failed",
+        counters = {k: S[k] for k in ("edge_received", "http_received", "kafka_received",
+                                       "kafka_errors", "hb_sent", "hb_failed",
                                        "hb_received", "forwarded", "forward_failed")}
     return jsonify({"id": AGG_ID, "leader_id": lid, "is_leader": lid == AGG_ID,
                     "alive": alive, "term": term, **counters}), 200
@@ -154,4 +227,5 @@ if __name__ == "__main__":
     log(f"starting, peers={PEERS or 'none'}, cloud={CLOUD_URL}")
     threading.Thread(target=heartbeat_loop, daemon=True).start()
     threading.Thread(target=flush_loop, daemon=True).start()
+    threading.Thread(target=kafka_consumer_loop, daemon=True).start()
     app.run(host="0.0.0.0", port=PORT)

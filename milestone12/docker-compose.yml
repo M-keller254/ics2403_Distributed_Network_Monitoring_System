@@ -131,6 +131,8 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports: ["9000:9000", "9001:9001"]
+    volumes:
+      - minio_data:/data
     mem_limit: 256m
     cpus: 0.5
     networks: [monitor-net]
@@ -154,3 +156,7 @@ services:
 networks:
   monitor-net:
     driver: bridge
+
+volumes:
+  minio_data:
+    name: milestone12_minio_data
