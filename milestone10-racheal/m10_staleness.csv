@@ -1,0 +1,8 @@
+client,time_until_new_location_s,stale_answers_pct,lookups_in_7s,messages
+static map,never (>7 s),100.0,132,0
+"name server, cache TTL 0s",0.0,0.0,132,134
+"prefix resolver, record TTL 0s",0.0,0.0,132,6
+"name server, cache TTL 1s",1.01,14.4,132,8
+"prefix resolver, record TTL 1s",1.02,14.4,132,6
+"name server, cache TTL 5s",5.01,71.2,132,3
+"prefix resolver, record TTL 5s",5.01,71.2,132,5

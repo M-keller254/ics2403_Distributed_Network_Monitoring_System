@@ -1,0 +1,4 @@
+names_registered,bulk_register_s,lookup_mean_ms,lookup_p95_ms
+1000,0.0,1.068,1.81
+10000,0.02,1.514,1.823
+100000,0.21,1.698,2.193

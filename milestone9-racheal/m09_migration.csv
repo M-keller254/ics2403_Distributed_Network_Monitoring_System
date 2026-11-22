@@ -1,0 +1,5 @@
+migration,operations,app_errors,stale_reads,namespaces_with_lost_last_write,acked_unique_writes,acked_writes_missing_on_new_group,namespaces,migration_duration_s,worst_latency_ms,mean_latency_ms_during_migration,copies_left_on_source_group,reresolutions,rep
+4-phase,5272,0,0,0,660,0,4,18.94,55.8,11.06,0,0,1
+4-phase,5373,0,0,0,674,0,4,19.18,60.5,10.95,0,0,2
+naive copy-then-switch,3125,0,1,0,392,22,4,2.39,54.2,10.13,12,0,1
+naive copy-then-switch,2895,0,4,0,364,24,4,2.42,73.8,12.14,12,0,2

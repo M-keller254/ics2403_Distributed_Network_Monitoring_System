@@ -1,0 +1,623 @@
+{
+  "resolution": [
+    [
+      {
+        "scheme": "static map (local table)",
+        "nodes": 8,
+        "lookups": 1500,
+        "mean_ms": 0.0,
+        "p95_ms": 0.0,
+        "jitter_ms": 0.0,
+        "messages_per_lookup": 0.0,
+        "cache_hits_pct": 0.0,
+        "failures": 0
+      },
+      {
+        "scheme": "broadcast to 8 nodes",
+        "nodes": 8,
+        "lookups": 1500,
+        "mean_ms": 9.373,
+        "p95_ms": 14.441,
+        "jitter_ms": 3.027,
+        "messages_per_lookup": 8.0,
+        "cache_hits_pct": 0.0,
+        "failures": 0
+      },
+      {
+        "scheme": "central name server",
+        "nodes": 8,
+        "lookups": 1500,
+        "mean_ms": 0.025,
+        "p95_ms": 0.0,
+        "jitter_ms": 0.201,
+        "messages_per_lookup": 0.02,
+        "cache_hits_pct": 98.4,
+        "failures": 0
+      },
+      {
+        "scheme": "prefix resolver, cold (no cache, iterative from root)",
+        "nodes": 8,
+        "lookups": 1500,
+        "mean_ms": 5.066,
+        "p95_ms": 6.297,
+        "jitter_ms": 0.666,
+        "messages_per_lookup": 3.0,
+        "cache_hits_pct": 0.0,
+        "failures": 0
+      },
+      {
+        "scheme": "prefix resolver, prefix table (answers not cached)",
+        "nodes": 8,
+        "lookups": 1500,
+        "mean_ms": 1.694,
+        "p95_ms": 2.115,
+        "jitter_ms": 0.269,
+        "messages_per_lookup": 1.0,
+        "cache_hits_pct": 0.0,
+        "failures": 0
+      },
+      {
+        "scheme": "prefix resolver, prefix table + answer cache (TTL 30 s)",
+        "nodes": 8,
+        "lookups": 1500,
+        "mean_ms": 0.004,
+        "p95_ms": 0.0,
+        "jitter_ms": 0.078,
+        "messages_per_lookup": 0.0,
+        "cache_hits_pct": 99.8,
+        "failures": 0
+      }
+    ],
+    [
+      {
+        "scheme": "central name server",
+        "clients": 1,
+        "lookups_per_s": 651.0,
+        "mean_ms": 1.535,
+        "p95_ms": 1.799
+      },
+      {
+        "scheme": "hierarchy (prefix table)",
+        "clients": 1,
+        "lookups_per_s": 570.0,
+        "mean_ms": 1.725,
+        "p95_ms": 2.178
+      },
+      {
+        "scheme": "central name server",
+        "clients": 4,
+        "lookups_per_s": 874.0,
+        "mean_ms": 4.574,
+        "p95_ms": 7.454
+      },
+      {
+        "scheme": "hierarchy (prefix table)",
+        "clients": 4,
+        "lookups_per_s": 1121.0,
+        "mean_ms": 3.424,
+        "p95_ms": 6.065
+      },
+      {
+        "scheme": "central name server",
+        "clients": 16,
+        "lookups_per_s": 973.0,
+        "mean_ms": 16.34,
+        "p95_ms": 21.666
+      },
+      {
+        "scheme": "hierarchy (prefix table)",
+        "clients": 16,
+        "lookups_per_s": 907.0,
+        "mean_ms": 14.717,
+        "p95_ms": 30.926
+      },
+      {
+        "scheme": "central name server",
+        "clients": 32,
+        "lookups_per_s": 886.0,
+        "mean_ms": 35.313,
+        "p95_ms": 45.636
+      },
+      {
+        "scheme": "hierarchy (prefix table)",
+        "clients": 32,
+        "lookups_per_s": 627.0,
+        "mean_ms": 33.819,
+        "p95_ms": 76.0
+      }
+    ],
+    [
+      {
+        "names_registered": 1000,
+        "bulk_register_s": 0.0,
+        "lookup_mean_ms": 1.068,
+        "lookup_p95_ms": 1.81
+      },
+      {
+        "names_registered": 10000,
+        "bulk_register_s": 0.02,
+        "lookup_mean_ms": 1.514,
+        "lookup_p95_ms": 1.823
+      },
+      {
+        "names_registered": 100000,
+        "bulk_register_s": 0.21,
+        "lookup_mean_ms": 1.698,
+        "lookup_p95_ms": 2.193
+      }
+    ],
+    [
+      {
+        "scheme": "broadcast",
+        "nodes": 4,
+        "mean_ms": 4.43,
+        "p95_ms": 6.371,
+        "messages_per_lookup": 4.0
+      },
+      {
+        "scheme": "central",
+        "nodes": 4,
+        "mean_ms": 0.059,
+        "p95_ms": 0.002,
+        "messages_per_lookup": 0.0
+      },
+      {
+        "scheme": "broadcast",
+        "nodes": 8,
+        "mean_ms": 8.437,
+        "p95_ms": 12.795,
+        "messages_per_lookup": 8.0
+      },
+      {
+        "scheme": "central",
+        "nodes": 8,
+        "mean_ms": 0.065,
+        "p95_ms": 0.002,
+        "messages_per_lookup": 0.0
+      },
+      {
+        "scheme": "broadcast",
+        "nodes": 16,
+        "mean_ms": 19.337,
+        "p95_ms": 28.546,
+        "messages_per_lookup": 16.0
+      },
+      {
+        "scheme": "central",
+        "nodes": 16,
+        "mean_ms": 0.066,
+        "p95_ms": 0.002,
+        "messages_per_lookup": 0.0
+      },
+      {
+        "scheme": "broadcast",
+        "nodes": 24,
+        "mean_ms": 31.269,
+        "p95_ms": 47.207,
+        "messages_per_lookup": 24.0
+      },
+      {
+        "scheme": "central",
+        "nodes": 24,
+        "mean_ms": 0.059,
+        "p95_ms": 0.001,
+        "messages_per_lookup": 0.0
+      }
+    ]
+  ],
+  "staleness": [
+    {
+      "client": "static map",
+      "time_until_new_location_s": "never (>7 s)",
+      "stale_answers_pct": 100.0,
+      "lookups_in_7s": 132,
+      "messages": 0
+    },
+    {
+      "client": "name server, cache TTL 0s",
+      "time_until_new_location_s": 0.0,
+      "stale_answers_pct": 0.0,
+      "lookups_in_7s": 132,
+      "messages": 134
+    },
+    {
+      "client": "prefix resolver, record TTL 0s",
+      "time_until_new_location_s": 0.0,
+      "stale_answers_pct": 0.0,
+      "lookups_in_7s": 132,
+      "messages": 6
+    },
+    {
+      "client": "name server, cache TTL 1s",
+      "time_until_new_location_s": 1.01,
+      "stale_answers_pct": 14.4,
+      "lookups_in_7s": 132,
+      "messages": 8
+    },
+    {
+      "client": "prefix resolver, record TTL 1s",
+      "time_until_new_location_s": 1.02,
+      "stale_answers_pct": 14.4,
+      "lookups_in_7s": 132,
+      "messages": 6
+    },
+    {
+      "client": "name server, cache TTL 5s",
+      "time_until_new_location_s": 5.01,
+      "stale_answers_pct": 71.2,
+      "lookups_in_7s": 132,
+      "messages": 3
+    },
+    {
+      "client": "prefix resolver, record TTL 5s",
+      "time_until_new_location_s": 5.01,
+      "stale_answers_pct": 71.2,
+      "lookups_in_7s": 132,
+      "messages": 5
+    }
+  ],
+  "failure": [
+    {
+      "failure": "no failure",
+      "resolver": "static",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "no failure",
+      "resolver": "broadcast",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "no failure",
+      "resolver": "central",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "no failure",
+      "resolver": "prefix cold",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "no failure",
+      "resolver": "prefix warm (table)",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "central name server down",
+      "resolver": "static",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "central name server down",
+      "resolver": "broadcast",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "central name server down",
+      "resolver": "central",
+      "names_resolved": 0,
+      "of": 24,
+      "success_pct": 0.0
+    },
+    {
+      "failure": "central name server down",
+      "resolver": "prefix cold",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "central name server down",
+      "resolver": "prefix warm (table)",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "root server down",
+      "resolver": "static",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "root server down",
+      "resolver": "broadcast",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "root server down",
+      "resolver": "central",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "root server down",
+      "resolver": "prefix cold",
+      "names_resolved": 0,
+      "of": 24,
+      "success_pct": 0.0
+    },
+    {
+      "failure": "root server down",
+      "resolver": "prefix warm (table)",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "regional server zone-nai down",
+      "resolver": "static",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "regional server zone-nai down",
+      "resolver": "broadcast",
+      "names_resolved": 20,
+      "of": 24,
+      "success_pct": 83.3
+    },
+    {
+      "failure": "regional server zone-nai down",
+      "resolver": "central",
+      "names_resolved": 24,
+      "of": 24,
+      "success_pct": 100.0
+    },
+    {
+      "failure": "regional server zone-nai down",
+      "resolver": "prefix cold",
+      "names_resolved": 20,
+      "of": 24,
+      "success_pct": 83.3
+    },
+    {
+      "failure": "regional server zone-nai down",
+      "resolver": "prefix warm (table)",
+      "names_resolved": 20,
+      "of": 24,
+      "success_pct": 83.3
+    }
+  ],
+  "procman": [
+    [
+      {
+        "policy": "round-robin",
+        "rep": 1,
+        "makespan_s": 13.406,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 6,
+        "tasks_per_node": "6/6/6/6",
+        "mean_schedule_ms": 0.0,
+        "locate_calls": 420
+      },
+      {
+        "policy": "round-robin",
+        "rep": 2,
+        "makespan_s": 13.661,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 6,
+        "tasks_per_node": "6/6/6/6",
+        "mean_schedule_ms": 0.0,
+        "locate_calls": 423
+      },
+      {
+        "policy": "round-robin",
+        "rep": 3,
+        "makespan_s": 13.714,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 6,
+        "tasks_per_node": "6/6/6/6",
+        "mean_schedule_ms": 0.0,
+        "locate_calls": 416
+      },
+      {
+        "policy": "random",
+        "rep": 1,
+        "makespan_s": 15.111,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 7,
+        "tasks_per_node": "5/4/8/7",
+        "mean_schedule_ms": 0.001,
+        "locate_calls": 435
+      },
+      {
+        "policy": "random",
+        "rep": 2,
+        "makespan_s": 15.573,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 8,
+        "tasks_per_node": "10/3/3/8",
+        "mean_schedule_ms": 0.001,
+        "locate_calls": 423
+      },
+      {
+        "policy": "random",
+        "rep": 3,
+        "makespan_s": 13.507,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 6,
+        "tasks_per_node": "6/5/7/6",
+        "mean_schedule_ms": 0.001,
+        "locate_calls": 406
+      },
+      {
+        "policy": "least-loaded",
+        "rep": 1,
+        "makespan_s": 10.912,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 3,
+        "tasks_per_node": "7/7/7/3",
+        "mean_schedule_ms": 15.155,
+        "locate_calls": 200
+      },
+      {
+        "policy": "least-loaded",
+        "rep": 2,
+        "makespan_s": 11.025,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 3,
+        "tasks_per_node": "7/8/6/3",
+        "mean_schedule_ms": 15.169,
+        "locate_calls": 204
+      },
+      {
+        "policy": "least-loaded",
+        "rep": 3,
+        "makespan_s": 10.582,
+        "workers": 24,
+        "flagged": 1524,
+        "rows": 120000,
+        "tasks_on_slow_node3": 3,
+        "tasks_per_node": "7/7/7/3",
+        "mean_schedule_ms": 14.007,
+        "locate_calls": 205
+      }
+    ],
+    [
+      {
+        "policy": "least-loaded",
+        "node_killed_at_s": null,
+        "makespan_s": 9.38,
+        "workers_completed": 24,
+        "of": 24,
+        "tasks_rescheduled": 0,
+        "flagged": 1524,
+        "result_complete": true
+      },
+      {
+        "policy": "least-loaded",
+        "node_killed_at_s": 2.0,
+        "makespan_s": 62.342,
+        "workers_completed": 24,
+        "of": 24,
+        "tasks_rescheduled": 1,
+        "flagged": 1524,
+        "result_complete": true
+      },
+      {
+        "policy": "round-robin",
+        "node_killed_at_s": null,
+        "makespan_s": 8.349,
+        "workers_completed": 24,
+        "of": 24,
+        "tasks_rescheduled": 0,
+        "flagged": 1524,
+        "result_complete": true
+      },
+      {
+        "policy": "round-robin",
+        "node_killed_at_s": 2.0,
+        "makespan_s": 61.441,
+        "workers_completed": 24,
+        "of": 24,
+        "tasks_rescheduled": 1,
+        "flagged": 1524,
+        "result_complete": true
+      }
+    ]
+  ],
+  "procman_failure": [
+    {
+      "policy": "least-loaded",
+      "node_killed_at_s": null,
+      "stale_name_cache_invalidated": null,
+      "makespan_s": 9.468,
+      "workers_completed": 24,
+      "of": 24,
+      "tasks_rescheduled": 0,
+      "flagged": 1524,
+      "result_complete": true
+    },
+    {
+      "policy": "least-loaded",
+      "node_killed_at_s": 2.0,
+      "stale_name_cache_invalidated": false,
+      "makespan_s": 62.328,
+      "workers_completed": 24,
+      "of": 24,
+      "tasks_rescheduled": 1,
+      "flagged": 1524,
+      "result_complete": true
+    },
+    {
+      "policy": "least-loaded",
+      "node_killed_at_s": 2.0,
+      "stale_name_cache_invalidated": true,
+      "makespan_s": 10.063,
+      "workers_completed": 24,
+      "of": 24,
+      "tasks_rescheduled": 1,
+      "flagged": 1524,
+      "result_complete": true
+    },
+    {
+      "policy": "round-robin",
+      "node_killed_at_s": null,
+      "stale_name_cache_invalidated": null,
+      "makespan_s": 8.519,
+      "workers_completed": 24,
+      "of": 24,
+      "tasks_rescheduled": 0,
+      "flagged": 1524,
+      "result_complete": true
+    },
+    {
+      "policy": "round-robin",
+      "node_killed_at_s": 2.0,
+      "stale_name_cache_invalidated": false,
+      "makespan_s": 61.427,
+      "workers_completed": 24,
+      "of": 24,
+      "tasks_rescheduled": 1,
+      "flagged": 1524,
+      "result_complete": true
+    },
+    {
+      "policy": "round-robin",
+      "node_killed_at_s": 2.0,
+      "stale_name_cache_invalidated": true,
+      "makespan_s": 9.445,
+      "workers_completed": 24,
+      "of": 24,
+      "tasks_rescheduled": 1,
+      "flagged": 1524,
+      "result_complete": true
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# One image for every service of the full system; docker-compose.system.yml chooses the module to run.
+FROM python:3.11-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends curl graphviz && rm -rf /var/lib/apt/lists/*
+COPY requirements-system.txt .
+RUN pip install --no-cache-dir -r requirements-system.txt
+COPY system ./system
+COPY data ./data
+ENV PYTHONPATH=/app PYTHONUNBUFFERED=1
+CMD ["python", "-m", "system.core.service"]

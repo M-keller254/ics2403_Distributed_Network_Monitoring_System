@@ -1,0 +1,11 @@
+# Full distributed system (Milestones 2-12). The Week-1 files keep using requirements.txt.
+flask==3.0.3
+requests>=2.32.3        # experiments ran with 2.34.2
+psutil==6.0.0
+confluent-kafka==2.16.1
+grpcio==1.85.1
+grpcio-tools==1.85.1
+minio==7.2.20
+matplotlib>=3.8
+pandas>=2.2            # powerbi/make_preview.py and analysis only
+pytest>=8.0
