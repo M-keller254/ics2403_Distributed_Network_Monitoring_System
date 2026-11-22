@@ -1,0 +1,7 @@
+policy,node_killed_at_s,stale_name_cache_invalidated,makespan_s,workers_completed,of,tasks_rescheduled,flagged,result_complete
+least-loaded,,,9.468,24,24,0,1524,True
+least-loaded,2.0,False,62.328,24,24,1,1524,True
+least-loaded,2.0,True,10.063,24,24,1,1524,True
+round-robin,,,8.519,24,24,0,1524,True
+round-robin,2.0,False,61.427,24,24,1,1524,True
+round-robin,2.0,True,9.445,24,24,1,1524,True

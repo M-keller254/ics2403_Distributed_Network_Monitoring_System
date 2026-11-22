@@ -1,0 +1,6 @@
+operation,mean_ms,p95_ms,jitter_ms,ops_per_s_1thread,overhead_x_vs_direct
+"direct physical READ (1 replica, no layer)",1.567,1.942,0.315,638.0,1.0
+"logical READ (layer, cached placement, R=2)",2.657,3.412,0.658,376.3,1.7
+"logical READ (layer, placement looked up every call)",5.873,7.141,0.838,170.3,3.75
+"direct physical WRITE (1 replica, no layer)",2.38,3.104,0.603,420.2,1.0
+"logical WRITE (layer, W=2 of 3 replicas)",4.421,6.373,1.409,226.2,1.86

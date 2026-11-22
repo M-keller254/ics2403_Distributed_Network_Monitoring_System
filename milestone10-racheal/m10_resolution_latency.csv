@@ -1,0 +1,7 @@
+scheme,nodes,lookups,mean_ms,p95_ms,jitter_ms,messages_per_lookup,cache_hits_pct,failures
+static map (local table),8,1500,0.0,0.0,0.0,0.0,0.0,0
+broadcast to 8 nodes,8,1500,9.373,14.441,3.027,8.0,0.0,0
+central name server,8,1500,0.025,0.0,0.201,0.02,98.4,0
+"prefix resolver, cold (no cache, iterative from root)",8,1500,5.066,6.297,0.666,3.0,0.0,0
+"prefix resolver, prefix table (answers not cached)",8,1500,1.694,2.115,0.269,1.0,0.0,0
+"prefix resolver, prefix table + answer cache (TTL 30 s)",8,1500,0.004,0.0,0.078,0.0,99.8,0

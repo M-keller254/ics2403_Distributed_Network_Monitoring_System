@@ -1,0 +1,9 @@
+scheme,clients,lookups_per_s,mean_ms,p95_ms
+central name server,1,651.0,1.535,1.799
+hierarchy (prefix table),1,570.0,1.725,2.178
+central name server,4,874.0,4.574,7.454
+hierarchy (prefix table),4,1121.0,3.424,6.065
+central name server,16,973.0,16.34,21.666
+hierarchy (prefix table),16,907.0,14.717,30.926
+central name server,32,886.0,35.313,45.636
+hierarchy (prefix table),32,627.0,33.819,76.0

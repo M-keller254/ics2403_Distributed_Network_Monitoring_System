@@ -1,0 +1,2 @@
+logical_write,physical_copies,copies_agree,per_replica
+site/NAI-08/threshold = {cpu: 90},3,True,"{""r1"": {""cpu"": 90}, ""r2"": {""cpu"": 90}, ""r3"": {""cpu"": 90}}"

@@ -1,0 +1,21 @@
+failure,resolver,names_resolved,of,success_pct
+no failure,static,24,24,100.0
+no failure,broadcast,24,24,100.0
+no failure,central,24,24,100.0
+no failure,prefix cold,24,24,100.0
+no failure,prefix warm (table),24,24,100.0
+central name server down,static,24,24,100.0
+central name server down,broadcast,24,24,100.0
+central name server down,central,0,24,0.0
+central name server down,prefix cold,24,24,100.0
+central name server down,prefix warm (table),24,24,100.0
+root server down,static,24,24,100.0
+root server down,broadcast,24,24,100.0
+root server down,central,24,24,100.0
+root server down,prefix cold,0,24,0.0
+root server down,prefix warm (table),24,24,100.0
+regional server zone-nai down,static,24,24,100.0
+regional server zone-nai down,broadcast,20,24,83.3
+regional server zone-nai down,central,24,24,100.0
+regional server zone-nai down,prefix cold,20,24,83.3
+regional server zone-nai down,prefix warm (table),20,24,83.3

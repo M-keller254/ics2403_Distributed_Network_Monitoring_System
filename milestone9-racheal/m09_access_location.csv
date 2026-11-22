@@ -1,0 +1,4 @@
+logical_resource,physical_backend,threshold_read,state_read,same_application_code
+site/NAI-01,"replicated KV, group G1 (3 hosts)","{""cpu"": 85, ""latency_ms"": 120}",degraded,True
+site/FILE-01,local JSON file (1 host),"{""cpu"": 85, ""latency_ms"": 120}",degraded,True
+site/NAI-01,"replicated KV, group G2 (moved, app unchanged)","{""cpu"": 85, ""latency_ms"": 120}",degraded,True

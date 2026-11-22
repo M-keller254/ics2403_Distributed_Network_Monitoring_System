@@ -1,0 +1,5 @@
+client,rep,ops,errors_seen_by_application,availability_pct
+bound to physical replica r1,1,237,103,56.54
+logical layer (3 replicas),1,207,0,100.0
+bound to physical replica r1,2,237,102,56.96
+logical layer (3 replicas),2,207,0,100.0

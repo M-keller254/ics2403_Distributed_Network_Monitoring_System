@@ -1,0 +1,9 @@
+scheme,nodes,mean_ms,p95_ms,messages_per_lookup
+broadcast,4,4.43,6.371,4.0
+central,4,0.059,0.002,0.0
+broadcast,8,8.437,12.795,8.0
+central,8,0.065,0.002,0.0
+broadcast,16,19.337,28.546,16.0
+central,16,0.066,0.002,0.0
+broadcast,24,31.269,47.207,24.0
+central,24,0.059,0.001,0.0

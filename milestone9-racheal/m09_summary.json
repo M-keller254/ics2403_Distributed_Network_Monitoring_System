@@ -1,0 +1,171 @@
+{
+  "access_location": [
+    {
+      "logical_resource": "site/NAI-01",
+      "physical_backend": "replicated KV, group G1 (3 hosts)",
+      "threshold_read": "{\"cpu\": 85, \"latency_ms\": 120}",
+      "state_read": "degraded",
+      "same_application_code": true
+    },
+    {
+      "logical_resource": "site/FILE-01",
+      "physical_backend": "local JSON file (1 host)",
+      "threshold_read": "{\"cpu\": 85, \"latency_ms\": 120}",
+      "state_read": "degraded",
+      "same_application_code": true
+    },
+    {
+      "logical_resource": "site/NAI-01",
+      "physical_backend": "replicated KV, group G2 (moved, app unchanged)",
+      "threshold_read": "{\"cpu\": 85, \"latency_ms\": 120}",
+      "state_read": "degraded",
+      "same_application_code": true
+    }
+  ],
+  "overhead": [
+    {
+      "operation": "direct physical READ (1 replica, no layer)",
+      "mean_ms": 1.567,
+      "p95_ms": 1.942,
+      "jitter_ms": 0.315,
+      "ops_per_s_1thread": 638.0,
+      "overhead_x_vs_direct": 1.0
+    },
+    {
+      "operation": "logical READ (layer, cached placement, R=2)",
+      "mean_ms": 2.657,
+      "p95_ms": 3.412,
+      "jitter_ms": 0.658,
+      "ops_per_s_1thread": 376.3,
+      "overhead_x_vs_direct": 1.7
+    },
+    {
+      "operation": "logical READ (layer, placement looked up every call)",
+      "mean_ms": 5.873,
+      "p95_ms": 7.141,
+      "jitter_ms": 0.838,
+      "ops_per_s_1thread": 170.3,
+      "overhead_x_vs_direct": 3.75
+    },
+    {
+      "operation": "direct physical WRITE (1 replica, no layer)",
+      "mean_ms": 2.38,
+      "p95_ms": 3.104,
+      "jitter_ms": 0.603,
+      "ops_per_s_1thread": 420.2,
+      "overhead_x_vs_direct": 1.0
+    },
+    {
+      "operation": "logical WRITE (layer, W=2 of 3 replicas)",
+      "mean_ms": 4.421,
+      "p95_ms": 6.373,
+      "jitter_ms": 1.409,
+      "ops_per_s_1thread": 226.2,
+      "overhead_x_vs_direct": 1.86
+    }
+  ],
+  "migration": [
+    {
+      "migration": "4-phase",
+      "operations": 5272,
+      "app_errors": 0,
+      "stale_reads": 0,
+      "namespaces_with_lost_last_write": 0,
+      "acked_unique_writes": 660,
+      "acked_writes_missing_on_new_group": 0,
+      "namespaces": 4,
+      "migration_duration_s": 18.94,
+      "worst_latency_ms": 55.8,
+      "mean_latency_ms_during_migration": 11.06,
+      "copies_left_on_source_group": 0,
+      "reresolutions": 0,
+      "rep": 1
+    },
+    {
+      "migration": "4-phase",
+      "operations": 5373,
+      "app_errors": 0,
+      "stale_reads": 0,
+      "namespaces_with_lost_last_write": 0,
+      "acked_unique_writes": 674,
+      "acked_writes_missing_on_new_group": 0,
+      "namespaces": 4,
+      "migration_duration_s": 19.18,
+      "worst_latency_ms": 60.5,
+      "mean_latency_ms_during_migration": 10.95,
+      "copies_left_on_source_group": 0,
+      "reresolutions": 0,
+      "rep": 2
+    },
+    {
+      "migration": "naive copy-then-switch",
+      "operations": 3125,
+      "app_errors": 0,
+      "stale_reads": 1,
+      "namespaces_with_lost_last_write": 0,
+      "acked_unique_writes": 392,
+      "acked_writes_missing_on_new_group": 22,
+      "namespaces": 4,
+      "migration_duration_s": 2.39,
+      "worst_latency_ms": 54.2,
+      "mean_latency_ms_during_migration": 10.13,
+      "copies_left_on_source_group": 12,
+      "reresolutions": 0,
+      "rep": 1
+    },
+    {
+      "migration": "naive copy-then-switch",
+      "operations": 2895,
+      "app_errors": 0,
+      "stale_reads": 4,
+      "namespaces_with_lost_last_write": 0,
+      "acked_unique_writes": 364,
+      "acked_writes_missing_on_new_group": 24,
+      "namespaces": 4,
+      "migration_duration_s": 2.42,
+      "worst_latency_ms": 73.8,
+      "mean_latency_ms_during_migration": 12.14,
+      "copies_left_on_source_group": 12,
+      "reresolutions": 0,
+      "rep": 2
+    }
+  ],
+  "failure": [
+    {
+      "client": "bound to physical replica r1",
+      "rep": 1,
+      "ops": 237,
+      "errors_seen_by_application": 103,
+      "availability_pct": 56.54
+    },
+    {
+      "client": "logical layer (3 replicas)",
+      "rep": 1,
+      "ops": 207,
+      "errors_seen_by_application": 0,
+      "availability_pct": 100.0
+    },
+    {
+      "client": "bound to physical replica r1",
+      "rep": 2,
+      "ops": 237,
+      "errors_seen_by_application": 102,
+      "availability_pct": 56.96
+    },
+    {
+      "client": "logical layer (3 replicas)",
+      "rep": 2,
+      "ops": 207,
+      "errors_seen_by_application": 0,
+      "availability_pct": 100.0
+    }
+  ],
+  "replication": [
+    {
+      "logical_write": "site/NAI-08/threshold = {cpu: 90}",
+      "physical_copies": 3,
+      "copies_agree": true,
+      "per_replica": "{\"r1\": {\"cpu\": 90}, \"r2\": {\"cpu\": 90}, \"r3\": {\"cpu\": 90}}"
+    }
+  ]
+}
